@@ -26,7 +26,7 @@ public class LocationValidationController {
     LocationValidatorService locationValidatorService;
 
     @GetMapping(value = "/city/{city}/users",produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Find users that are either listed as living in a particular city or are based within 50 miles from it",notes="Provide a city to look to look up the users.")
+    @ApiOperation(value="Find users that are either listed as living in a particular city or are based within 50 miles from it",notes="Provide a city to look up the users.")
     public List<User> getUsersListedAsLivingInACity(@ApiParam(value=" Only London city is configured to return results") @PathVariable String city) {
         if(isNotBlank(city) && LONDON.equalsIgnoreCase(city)){
             return locationValidatorService.getEligibleUsers(city.toLowerCase());
@@ -37,7 +37,7 @@ public class LocationValidationController {
     }
 
     @GetMapping(value = "/listed/{city}/users",produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Find users that are listed as living in a particular city",notes="Provide a city to look to look up the users.")
+    @ApiOperation(value="Find users that are listed as living in a particular city",notes="Provide a city to look up the users.")
     public List<User> getLondonListedUsers(@ApiParam(value=" Only London city is configured to return results") @PathVariable String city) {
         if(isNotBlank(city) && LONDON.equalsIgnoreCase(city)){
             return locationValidatorService.getLondonListedUsers(city.toLowerCase());
@@ -48,7 +48,7 @@ public class LocationValidationController {
     }
 
     @GetMapping(value = "/around/{city}/users",produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value="Find users that are living within fifty miles from a particular city",notes="Provide a city to look to look up the users.")
+    @ApiOperation(value="Find users that are living within fifty miles from a particular city",notes="Provide a city to look up the users.")
     public List<User> getUsersLessThanFiftyMilesFromLondon(@ApiParam(value=" Only London city is configured to return results") @PathVariable String city) {
         if(isNotBlank(city) && LONDON.equalsIgnoreCase(city)){
             return locationValidatorService.getUsersBasedInAndAroundLondon(city.toLowerCase());
