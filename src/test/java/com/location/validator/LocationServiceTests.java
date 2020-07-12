@@ -3,8 +3,6 @@ package com.location.validator;
 import com.location.validator.model.User;
 import com.location.validator.service.ApiConnectorService;
 import com.location.validator.service.LocationValidatorService;
-import com.location.validator.util.CommonConstants;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +58,7 @@ public class LocationServiceTests {
         List users = new ArrayList(asList(userMap));
         when(testObj.getApiConnectorService()).thenReturn(apiConnectorServiceMock);
         doReturn(users).when(apiConnectorServiceMock).getResponseFromApiForGetRequest(Mockito.any(), Mockito.any());
-        List<User> usersFound = testObj.getUsersBasedInAndAroundLondon("london");
+        List<User> usersFound = testObj.getUsersBasedInAndAroundACity("london");
         assertTrue(usersFound.size() == 0);
     }
 
@@ -78,7 +76,7 @@ public class LocationServiceTests {
         List users = new ArrayList(asList(userMap));
         when(testObj.getApiConnectorService()).thenReturn(apiConnectorServiceMock);
         doReturn(users).when(apiConnectorServiceMock).getResponseFromApiForGetRequest(Mockito.any(), Mockito.any());
-        List<User> usersFound = testObj.getUsersBasedInAndAroundLondon("london");
+        List<User> usersFound = testObj.getUsersBasedInAndAroundACity("london");
         assertTrue(usersFound.size() == 1);
     }
 

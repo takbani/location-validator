@@ -8,7 +8,14 @@
    mvnw spring-boot:run
 
 
-#For documentation of the api and to test please please visit the following url:
+#Once the app is up and running locally, for documentation of the api and to test please please visit the following url:
 
   http://localhost:8080/swagger-ui.html
+
+
+#The app is also deployed on heroku at the following and can be tested using the below url:
+
+ https://location-validator.herokuapp.com/swagger-ui.html
+  
+
 
