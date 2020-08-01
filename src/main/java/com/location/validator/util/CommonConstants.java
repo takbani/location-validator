@@ -1,20 +1,14 @@
 package com.location.validator.util;
 
-import com.location.validator.model.Coordinates;
-
-import java.util.HashMap;
-import java.util.Map;
-
 public class CommonConstants {
 
     public static final String LONDON_CITY="london";
 
-    public static final Map<String, Coordinates> cityNameToCityCoordinatesMap = new HashMap<String, Coordinates>() {
-        {
-            put("london", new Coordinates(51.507222222222225, -0.1275));
-        }
+    public static final String LONDON_CITY_LATITUDE_MSG_KEY="london.latitude";
 
-    };
+    public static final String LONDON_CITY_LONGITUDE_MSG_KEY="london.longitude";
+
+    public static final String CITY_LISTED_USERS_URL_MSG_KEY ="city.users.url";
 
 
 }

@@ -1,22 +1,23 @@
 package com.location.validator.service;
 
+import com.location.validator.exception.DataNotFoundException;
+import com.location.validator.model.City;
 import com.location.validator.model.Coordinates;
-import com.location.validator.model.User;
+import com.location.validator.util.CityFactory;
 import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static com.location.validator.util.CommonConstants.LONDON_CITY;
-import static com.location.validator.util.CommonConstants.cityNameToCityCoordinatesMap;
 import static java.lang.Double.valueOf;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -29,41 +30,48 @@ public class LocationValidatorService {
     @Value("${all.users.url}")
     String userUrl;
 
-    @Value("${london.users.url}")
-    String londonUserUrl;
+    @Autowired
+    CityFactory cityFactory;
 
-   //merges users that are listed as living in a city with the users that are based within 50 miles of the city
-    public List<User> getListedUsersAndUsersBasedAroundACity(String city) {
-        return concat(getUsersListedAsLivingInACity(city).stream(), getUsersBasedInAndAroundACity(city).stream()).distinct().collect(Collectors.toList());
+
+    //merges users that are listed as living in a city with the users that are based within 50 miles of the city
+    public List getListedUsersAndUsersBasedAroundACity(String city) {
+        return singletonList(concat(getUsersListedAsLivingInACity(city).stream(), getUsersBasedInAndAroundACity(city).stream()).distinct().collect(toList()));
     }
 
-    public List<User> getUsersListedAsLivingInACity(String city) {
-        if (isNotBlank(city)) {
-            if (LONDON_CITY.equalsIgnoreCase(city)) {
-                List users = apiConnectorService.getResponseFromApiForGetRequest(londonUserUrl, List.class);
+    public List getUsersListedAsLivingInACity(String cityName) {
+        if (isNotBlank(cityName)) {
+            City city = cityFactory.getCity(cityName);
+            if (nonNull(city)) {
+                List users = apiConnectorService.getResponseFromApiForGetRequest(city.getListedUsersUrl(), List.class);
                 return users;
+            } else {
+                throw new DataNotFoundException(cityName.toUpperCase() + " is not configured to return results");
             }
         }
-        return new ArrayList<>();
+        return emptyList();
     }
 
 
-    public List<User> getUsersBasedInAndAroundACity(String city) {
-        if (isNotBlank(city)) {
-            Coordinates coordinates = cityNameToCityCoordinatesMap.get(city);
-            if (Objects.nonNull(coordinates)) {
+    public List getUsersBasedInAndAroundACity(String cityName) {
+        if (isNotBlank(cityName)) {
+            City city = cityFactory.getCity(cityName);
+            if (nonNull(city)) {
+                Coordinates coordinates = city.getCoordinates();
                 List users = getApiConnectorService().getResponseFromApiForGetRequest(userUrl, List.class);
-                List<User> usersBasedAroundLondon = (List<User>) users.stream().filter(LinkedHashMap.class::isInstance)
+                List usersBasedAroundCity = (List) users.parallelStream().filter(LinkedHashMap.class::isInstance)
                         .filter(user -> {
                             double latitude = valueOf(((LinkedHashMap) user).get("latitude").toString());
                             double longitude = valueOf(((LinkedHashMap) user).get("longitude").toString());
                             double distanceInMiles = calculateDistanceBetweenCoordinates(coordinates.getLatitude(), coordinates.getLongitude(), latitude, longitude);
                             return distanceInMiles <= 50;
-                        }).collect(Collectors.toCollection(ArrayList::new));
-                return usersBasedAroundLondon;
+                        }).collect(toList());
+                return usersBasedAroundCity;
+            } else {
+                throw new DataNotFoundException(cityName.toUpperCase() + " is not configured to return results");
             }
         }
-        return new ArrayList<>();
+        return emptyList();
     }
 
     public double calculateDistanceBetweenCoordinates(double sourceLatitude, double sourceLongitude, double destLatitude, double destLongitude) {
